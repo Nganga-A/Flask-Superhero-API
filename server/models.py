@@ -21,10 +21,10 @@ class Hero(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, server_default = db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
-    powers = db.relationship('HeroPower', back_populates = 'heroes')
+    powers = db.relationship('Power', secondary='hero_powers', back_populates = 'heroes')
 
     def __repr__(self):
-        return f'(id={self.id}, name={self.name} super_name={self.super_name})'
+        return f'(id={self.id}, name={self.name}, super_name={self.super_name})'
 
 
 class HeroPower(db.Model, SerializerMixin):
@@ -38,6 +38,9 @@ class HeroPower(db.Model, SerializerMixin):
     power_id = db.Column(db.Integer, db.ForeignKey('powers.id'), nullable=False)
     created_at = db.Column(db.DateTime, server_default = db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
+
+    power = db.relationship('Power', backref=db.backref('hero_powers', lazy=True))
+    hero = db.relationship('Hero', backref=db.backref('hero_powers', lazy=True))
 
     def __repr__(self):
         return f'(id={self.id}, heroID={self.hero_id} strength={self.strength}) powerID={self.power_id}'
@@ -60,11 +63,11 @@ class Power(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, server_default = db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
-    heroes = db.relationship('HeroPower', back_populates='power')
-
+    heroes = db.relationship('Hero', secondary='hero_powers', back_populates='powers')
+    
     @validates('description')
     def checks_description(self, key, description):
         if len(description) < 20:
-            raise ValueError("Description must be longer than 20 chars")
+            raise ValueError("Description must be longer than 20 characters")
         else:
             return description
