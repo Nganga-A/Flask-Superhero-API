@@ -16,7 +16,14 @@ api = Api(app)
 
 @app.route('/')
 def home():
-    return '<h2>Welcome To Flask-Superhero-API</h2>'
+    # return '<h2>Welcome To Flask-Superhero-API</h2>'
+    response_dict = {
+        "": "<h2>Welcome to the SuperHero API</h2>",
+        "Heroes": '/heroes',
+        "Powers": '/powers'
+    }
+    
+    return make_response(response_dict, 200)
 
 # Resource for getting all heroes
 class HeroListResource(Resource):
